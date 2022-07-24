@@ -1,0 +1,76 @@
+service: metadata-scrapper
+frameworkVersion: '3'
+
+custom:
+  tableName: 'cache-table-${self:provider.stage}'
+  dynamodb:
+    stages:
+      - '${self:provider.stage}'
+    start:
+      migrate: true
+      inMemory: true
+  webpack: 
+    webpackConfig: "webpack.config.js"
+    includeModules: false
+    packager: 'npm'
+    excludeFiles: src/**/*.spec.ts
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: dev
+  region: us-east-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [ CacheTable, Arn ]
+  environment:
+    CACHE_TABLE: ${self:custom.tableName}
+    
+package:
+  individually: true
+
+functions:
+  app:
+    handler: src/lambda.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+          events:
+      - http:
+          path: /scrape
+          method: POST
+
+resources:
+  Resources:
+    CacheTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: siteUrl
+            AttributeType: S
+        KeySchema:
+          - AttributeName: siteUrl
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+        
+
+plugins:
+  - serverless-webpack
+  - serverless-dynamodb-local
+  - serverless-offline
+

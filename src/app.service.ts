@@ -58,7 +58,9 @@ export class AppService {
         });
         return cache.metadata;
       }
-      throw new NotFoundException('Entry for this request is present in cache');
+      throw new NotFoundException(
+        'Entry for this request is not present in cache',
+      );
     } catch (err) {
       console.warn({
         message: err.message,

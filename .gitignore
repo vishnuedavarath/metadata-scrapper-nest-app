@@ -37,3 +37,6 @@ lerna-debug.log*
 
 # DynamoDB Local
 /.dynamodb
+
+# Serverless
+/.serverless

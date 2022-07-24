@@ -24,7 +24,7 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) Serverless Metadata Scrapping From A Given URL.
+Serverless Metadata Scrapping From A Given URL.
 
 This application exposes an API to scrape an input URL and parse it's OG Metadata. If the page has OG parameters set exclusively, then the API returns all the OG parameters, else if they are not set, the API parses the webpage to get relevant details such as title, description, images etc.
 
